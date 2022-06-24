@@ -1,2 +1,3 @@
-# firebaseauth-py
-Simple API wrapper for Firebase Auth, written in Python.
+# Firebase Auth API Wrapper
+
+> A simple api wrapper for Firebase Auth services ([Reference](https://firebase.google.com/docs/reference/rest/auth))
