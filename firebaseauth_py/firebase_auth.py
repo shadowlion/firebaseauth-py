@@ -14,10 +14,10 @@ class SignInWithPasswordRequest(TypedDict):
 class SignInWithPasswordResponse:
     idToken: str
     email: str
-    refreshToken: str
-    expiresIn: str
     localId: str
     registered: bool
+    displayName: str
+    kind: str
 
 
 @dataclass
@@ -36,7 +36,11 @@ class FirebaseAuthClient:
         password: str,
         return_secure_token: bool = False,
     ) -> SignInWithPasswordResponse:
-        payload = SignInWithPasswordRequest(email, password, return_secure_token)
+        payload = SignInWithPasswordRequest(
+            email=email,
+            password=password,
+            returnSecureToken=return_secure_token,
+        )
         with requests.Session() as client:
             r = client.post(self.url("accounts:signInWithPassword"), data=payload)
             return SignInWithPasswordResponse(**r.json())
