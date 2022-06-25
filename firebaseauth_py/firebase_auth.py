@@ -1,7 +1,9 @@
 from dataclasses import dataclass
-from typing import TypedDict
+from typing import TypedDict, Union
 
 import requests
+
+from .errors import ErrorResponse
 
 
 class SignUpRequest(TypedDict):
@@ -51,7 +53,7 @@ class FirebaseAuthClient:
         email: str,
         password: str,
         return_secure_token: bool = False,
-    ) -> SignUpResponse:
+    ) -> Union[SignUpResponse, ErrorResponse]:
         payload = SignUpRequest(
             email=email,
             password=password,
@@ -59,6 +61,8 @@ class FirebaseAuthClient:
         )
         with requests.Session() as client:
             r = client.post(self.url("accounts:signUp"), data=payload)
+            if "error" in r.json().keys():
+                return ErrorResponse(**r.json())
             return SignUpResponse(**r.json())
 
     def sign_in_with_password(
@@ -66,7 +70,7 @@ class FirebaseAuthClient:
         email: str,
         password: str,
         return_secure_token: bool = False,
-    ) -> SignInWithPasswordResponse:
+    ) -> Union[SignInWithPasswordResponse, ErrorResponse]:
         payload = SignInWithPasswordRequest(
             email=email,
             password=password,
@@ -74,4 +78,6 @@ class FirebaseAuthClient:
         )
         with requests.Session() as client:
             r = client.post(self.url("accounts:signInWithPassword"), data=payload)
+            if "error" in r.json().keys():
+                return ErrorResponse(**r.json())
             return SignInWithPasswordResponse(**r.json())

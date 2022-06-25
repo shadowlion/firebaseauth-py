@@ -1,6 +1,5 @@
-from dataclasses import asdict
-
 from firebaseauth_py import FirebaseAuthClient
+from firebaseauth_py.errors import ErrorResponse
 
 
 def main():
@@ -9,7 +8,11 @@ def main():
     api_key = ""
     client = FirebaseAuthClient(api_key)
     res = client.sign_in_with_password(email, password)
-    print(asdict(res))
+
+    if isinstance(res, ErrorResponse):
+        print(res.error["message"])
+    else:
+        print(res.email)
 
 
 if __name__ == "__main__":
