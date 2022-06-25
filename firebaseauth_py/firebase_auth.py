@@ -16,9 +16,9 @@ class SignUpRequest(TypedDict):
 class SignUpResponse:
     idToken: str
     email: str
+    refreshToken: str
+    expiresIn: str
     localId: str
-    registered: bool
-    displayName: str
     kind: str
 
 
