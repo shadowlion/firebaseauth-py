@@ -38,6 +38,18 @@ class SignInWithPasswordResponse:
     kind: str
 
 
+class FetchProvidersForEmailRequest(TypedDict):
+    identifier: str
+    continueUri: str
+
+
+@dataclass
+class FetchProvidersForEmailResponse:
+    kind: str
+    registered: bool
+    sessionId: str
+
+
 @dataclass
 class FirebaseAuthClient:
     api_key: str
@@ -81,3 +93,18 @@ class FirebaseAuthClient:
             if "error" in r.json().keys():
                 return ErrorResponse(**r.json())
             return SignInWithPasswordResponse(**r.json())
+
+    def fetch_providers_for_email(
+        self,
+        identifier: str,
+        continue_uri: str,
+    ) -> Union[FetchProvidersForEmailResponse, ErrorResponse]:
+        payload = FetchProvidersForEmailRequest(
+            identifier=identifier,
+            continueUri=continue_uri,
+        )
+        with requests.Session() as client:
+            r = client.post(self.url("accounts:createAuthUri"), data=payload)
+            if "error" in r.json().keys():
+                return ErrorResponse(**r.json())
+            return FetchProvidersForEmailResponse(**r.json())

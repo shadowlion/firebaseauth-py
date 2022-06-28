@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "firebaseauth-py"
-version = "0.0.1"
+version = "0.0.3"
 description = "API wrapper for Firebase Auth REST API"
 authors = ["Justin Chiou <chiou.kai@gmail.com>"]
 
