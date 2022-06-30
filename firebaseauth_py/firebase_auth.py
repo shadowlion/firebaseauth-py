@@ -3,7 +3,7 @@ from typing import TypedDict, Union
 
 import requests
 
-from .errors import ErrorResponse
+from .errors import FirebaseErrorResponse
 
 
 class SignUpRequest(TypedDict):
@@ -50,6 +50,10 @@ class FetchProvidersForEmailResponse:
     sessionId: str
 
 
+class DeleteAccountRequest(TypedDict):
+    idToken: str
+
+
 @dataclass
 class FirebaseAuthClient:
     api_key: str
@@ -65,7 +69,7 @@ class FirebaseAuthClient:
         email: str,
         password: str,
         return_secure_token: bool = False,
-    ) -> Union[SignUpResponse, ErrorResponse]:
+    ) -> Union[SignUpResponse, FirebaseErrorResponse]:
         payload = SignUpRequest(
             email=email,
             password=password,
@@ -74,7 +78,7 @@ class FirebaseAuthClient:
         with requests.Session() as client:
             r = client.post(self.url("accounts:signUp"), data=payload)
             if "error" in r.json().keys():
-                return ErrorResponse(**r.json())
+                return FirebaseErrorResponse(**r.json())
             return SignUpResponse(**r.json())
 
     def sign_in_with_password(
@@ -82,7 +86,7 @@ class FirebaseAuthClient:
         email: str,
         password: str,
         return_secure_token: bool = False,
-    ) -> Union[SignInWithPasswordResponse, ErrorResponse]:
+    ) -> Union[SignInWithPasswordResponse, FirebaseErrorResponse]:
         payload = SignInWithPasswordRequest(
             email=email,
             password=password,
@@ -91,14 +95,14 @@ class FirebaseAuthClient:
         with requests.Session() as client:
             r = client.post(self.url("accounts:signInWithPassword"), data=payload)
             if "error" in r.json().keys():
-                return ErrorResponse(**r.json())
+                return FirebaseErrorResponse(**r.json())
             return SignInWithPasswordResponse(**r.json())
 
     def fetch_providers_for_email(
         self,
         identifier: str,
         continue_uri: str,
-    ) -> Union[FetchProvidersForEmailResponse, ErrorResponse]:
+    ) -> Union[FetchProvidersForEmailResponse, FirebaseErrorResponse]:
         payload = FetchProvidersForEmailRequest(
             identifier=identifier,
             continueUri=continue_uri,
@@ -106,5 +110,16 @@ class FirebaseAuthClient:
         with requests.Session() as client:
             r = client.post(self.url("accounts:createAuthUri"), data=payload)
             if "error" in r.json().keys():
-                return ErrorResponse(**r.json())
+                return FirebaseErrorResponse(**r.json())
             return FetchProvidersForEmailResponse(**r.json())
+
+    def delete_account(self, id_token: str) -> Union[None, FirebaseErrorResponse]:
+        payload = DeleteAccountRequest(idToken=id_token)
+        with requests.Session() as client:
+            r = client.post(self.url("accounts:delete"), data=payload)
+            if "error" in r.json().keys():
+                return FirebaseErrorResponse(**r.json())
+            if r.status_code != 200:
+                # TODO: raise Reponse Error of sorts
+                pass
+            return

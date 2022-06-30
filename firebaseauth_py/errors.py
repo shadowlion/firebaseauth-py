@@ -19,5 +19,5 @@ class ErrorPayload:
 
 
 @dataclass
-class ErrorResponse:
+class FirebaseErrorResponse:
     error: ErrorPayload
