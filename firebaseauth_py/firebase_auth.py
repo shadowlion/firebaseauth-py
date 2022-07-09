@@ -50,6 +50,16 @@ class FetchProvidersForEmailResponse:
     sessionId: str
 
 
+class SendOobCodeRequest(TypedDict):
+    requestType: str
+    email: str
+
+
+@dataclass
+class SendOobCodeResponse:
+    email: str
+
+
 class DeleteAccountRequest(TypedDict):
     idToken: str
 
@@ -116,6 +126,21 @@ class FirebaseAuthClient:
         if "error" in r.json().keys():
             return FirebaseErrorResponse(**r.json())
         return FetchProvidersForEmailResponse(**r.json())
+
+
+    def send_oob_code(
+        self, 
+        email: str
+    ) -> Union[SendOobCodeResponse, FirebaseErrorResponse]:
+        payload = SendOobCodeRequest(
+            requestType="PASSWORD_RESET",
+            email=email,
+        )
+        r = self.__post_request(url=self.url("accounts:sendOobCode"), data=payload)
+        if "error" in r.json().keys():
+            return FirebaseErrorResponse(**r.json())
+        return SendOobCodeResponse(**r.json())
+
 
     def delete_account(self, id_token: str) -> Union[None, FirebaseErrorResponse]:
         payload = DeleteAccountRequest(idToken=id_token)
